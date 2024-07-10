@@ -1,0 +1,68 @@
+<?php 
+
+include 'database_connection.php';
+
+include 'function.php';
+
+if(!is_admin_login())
+{
+	header('location:../admin_login.php');
+}
+
+// Database connection info 
+$dbDetails = $dbConfigArray;
+ 
+// mysql db table to use 
+$table = 'lms_category'; 
+ 
+// Table's primary key 
+$primaryKey = 'category_id'; 
+ 
+// Array of database columns which should be read and sent back to DataTables. 
+// The `db` parameter represents the column name in the database.  
+// The `dt` parameter represents the DataTables column identifier. 
+$columns = array( 
+    array( 'db' => 'category_name', 'dt' => 0, 'field' => 'category_name', ), 
+    array( 'db' => 'category_status',
+			'dt' => 1,
+			'field' => 'category_status',
+			'formatter' => function( $d, $row ) {
+				if($row["category_status"] == "Enable"){
+					return '<span class="badge bg-success">'.$row["category_status"].'</span>';
+				}else{
+					return '<span class="badge bg-secondary">'.$row["category_status"].'</span>';
+				}
+			}
+	), 
+    array( 
+        'db'        => 'category_created_on', 
+        'dt'        => 2,
+		'field' => 'category_created_on',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['category_created_on'])); 
+        } 
+    ),
+	array( 
+        'db'        => 'category_updated_on', 
+        'dt'        => 3,
+		'field' => 'category_updated_on',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['category_updated_on'])); 
+        } 
+    ),
+    array( 
+        'db'        => 'category_id',
+        'dt'        => 4,
+		'field' => 'category_id',
+        'formatter' => function( $d, $row ) { 
+            return '<a href="category.php?action=edit&code='.convert_data($row["category_id"]).'" class="btn btn-sm btn-primary">Edit</a><button name="delete_button" class="btn btn-danger btn-sm" onclick="delete_data('.$row["category_id"].')">Delete</button>'; 
+        } 
+    ) 
+); 
+ 
+// Include SQL query processing class 
+require 'ssp.class.php'; 
+ 
+// Output data as json format 
+echo json_encode( 
+    SSP::simple( $_GET, $dbDetails, $table, $primaryKey, $columns ));

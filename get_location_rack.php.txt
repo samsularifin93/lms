@@ -1,0 +1,68 @@
+<?php 
+
+include 'database_connection.php';
+
+include 'function.php';
+
+if(!is_admin_login())
+{
+	header('location:../admin_login.php');
+}
+
+// Database connection info 
+$dbDetails = $dbConfigArray;
+ 
+// mysql db table to use 
+$table = 'lms_location_rack'; 
+ 
+// Table's primary key 
+$primaryKey = 'location_rack_id'; 
+ 
+// Array of database columns which should be read and sent back to DataTables. 
+// The `db` parameter represents the column name in the database.  
+// The `dt` parameter represents the DataTables column identifier. 
+$columns = array( 
+    array( 'db' => 'location_rack_name', 'dt' => 0, 'field' => 'location_rack_name' ), 
+    array( 'db' => 'location_rack_status',
+			'dt' => 1,
+			'field' => 'location_rack_status',
+			'formatter' => function( $d, $row ) {
+				if($row["location_rack_status"] == "Enable"){
+					return '<span class="badge bg-success">'.$row["location_rack_status"].'</span>';
+				}else{
+					return '<span class="badge bg-secondary">'.$row["location_rack_status"].'</span>';
+				}
+			}
+		), 
+    array( 
+        'db'        => 'location_rack_created_on', 
+        'dt'        => 2,
+		'field' => 'location_rack_created_on',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['location_rack_created_on'])); 
+        } 
+    ),
+	array( 
+        'db'        => 'location_rack_updated_on', 
+        'dt'        => 3,
+		'field' => 'location_rack_updated_on',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['location_rack_updated_on'])); 
+        } 
+    ),
+    array( 
+        'db'        => 'location_rack_id',
+        'dt'        => 4,
+		'field' => 'location_rack_id',
+        'formatter' => function( $d, $row ) { 
+            return '<a href="location_rack.php?action=edit&code='.convert_data($row["location_rack_id"]).'" class="btn btn-sm btn-primary">Edit</a><button name="delete_button" class="btn btn-danger btn-sm" onclick="delete_data('.$row["location_rack_id"].')">Delete</button>'; 
+        } 
+    ) 
+); 
+ 
+// Include SQL query processing class 
+require 'ssp.class.php'; 
+ 
+// Output data as json format 
+echo json_encode( 
+    SSP::simple( $_GET, $dbDetails, $table, $primaryKey, $columns ));

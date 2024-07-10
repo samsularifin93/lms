@@ -1,0 +1,16 @@
+<?php
+
+//database_connection.php
+
+$connect = new PDO("mysql:host=localhost; dbname=lms", "root", "");
+
+$dbConfigArray = array( 
+    'host' => 'localhost', 
+    'user' => 'root', 
+    'pass' => '', 
+    'db'   => 'lms' 
+);
+
+session_start();
+
+?>

@@ -1,0 +1,100 @@
+<?php 
+
+include 'database_connection.php';
+
+include 'function.php';
+
+if(!is_user_login())
+{
+	header('location:user_login.php');
+}
+
+// Database connection info 
+$dbDetails = $dbConfigArray;
+ 
+// mysql db table to use 
+$table = 'lms_issue_book';
+ 
+// Table's primary key 
+$primaryKey = 'issue_book_id'; 
+ 
+// Array of database columns which should be read and sent back to DataTables. 
+// The `db` parameter represents the column name in the database.  
+// The `dt` parameter represents the DataTables column identifier. 
+
+
+$table = "lms_issue_book as cn INNER JOIN lms_book as c ON c.book_isbn_number = cn.book_id";
+
+/*
+$columns = array( 
+    array( 'db' => 'book_isbn_number', 'dt' => 0 ),
+	array( 'db' => 'book_name', 'dt' => 1 ),
+	array( 
+        'db'        => 'issue_date_time', 
+        'dt'        => 2, 
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['issue_date_time'])); 
+        } 
+    ),
+	array( 
+        'db'        => 'return_date_time', 
+        'dt'        => 3, 
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['return_date_time'])); 
+        } 
+    ),
+	array( 'db' => 'book_fines', 'dt' => 4 ),
+    array( 'db' => 'book_issue_status',
+			'dt' => 5,
+			'formatter' => function( $d, $row ) {
+				if($row["book_issue_status"] == 'Issue')
+					{
+        				return '<span class="badge bg-warning">Issue</span>';
+        			}
+
+        		if($row["book_issue_status"] == 'Not Return')
+        			{
+        				return '<span class="badge bg-danger">Not Return</span>';
+        			}
+
+        		if($row["book_issue_status"] == 'Return')
+        			{
+        				return '<span class="badge bg-primary">Return</span>';
+        			}
+			}
+		)
+);
+
+*/
+
+$columns = array(
+    array( 'db' => 'c.book_isbn_number', 'dt' => 0, 'field' => 'book_isbn_number', 'as' => 'book_isbn_number' ),
+    array( 'db' => 'c.book_name', 'dt' => 1,  'field' => 'book_name', 'as' => 'book_name' ),
+    array( 'db' => 'cn.issue_date_time', 'dt' => 2, 'field' => 'issue_date_time', 'as' => 'issue_date_time' ),
+    array( 'db' => 'cn.return_date_time', 'dt' => 3, 'field' => 'return_date_time', 'as' => 'return_date_time' ),
+    array( 'db' => 'cn.book_fines', 'dt' => 4, 'field' => 'book_fines', 'as' => 'book_fines' ),
+    array( 'db' => 'cn.book_issue_status', 'dt' => 5, 'formatter' => function( $d, $row ) {
+				if($row["book_issue_status"] == 'Issue')
+					{
+        				return '<span class="badge bg-warning">Issue</span>';
+        			}
+
+        		if($row["book_issue_status"] == 'Not Return')
+        			{
+        				return '<span class="badge bg-danger">Not Return</span>';
+        			}
+
+        		if($row["book_issue_status"] == 'Return')
+        			{
+        				return '<span class="badge bg-primary">Return</span>';
+        			}
+		}, 'field' => 'book_issue_status', 'as' => 'book_issue_status' )
+	);
+ 
+// Include SQL query processing class 
+require 'ssp.class.php'; 
+
+// Output data as json format 
+echo json_encode( 
+    SSP::complex( $_GET, $dbDetails, $table, $primaryKey, $columns, "user_id ='".$_SESSION['user_id']."'" )
+	);

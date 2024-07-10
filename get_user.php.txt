@@ -1,0 +1,81 @@
+<?php 
+
+include 'database_connection.php';
+
+include 'function.php';
+
+if(!is_admin_login())
+{
+	header('location:../admin_login.php');
+}
+
+// Database connection info 
+$dbDetails = $dbConfigArray;
+ 
+// mysql db table to use 
+$table = 'lms_user';
+ 
+// Table's primary key 
+$primaryKey = 'user_id'; 
+ 
+// Array of database columns which should be read and sent back to DataTables. 
+// The `db` parameter represents the column name in the database.  
+// The `dt` parameter represents the DataTables column identifier. 
+$columns = array( 
+	array( 'db' => 'user_profile',
+				'dt' => 0,
+				'field' => 'user_profile',
+				'formatter' => function( $d, $row ) {
+					return '<img src="../upload/'.$row["user_profile"].'" class="img-thumbnail" width="75" />';
+				}
+			),
+    array( 'db' => 'user_unique_id', 'dt' => 1, 'field' => 'user_unique_id' ),
+	array( 'db' => 'user_name', 'dt' => 2, 'field' => 'user_name' ),
+	array( 'db' => 'user_email_address', 'dt' => 3, 'field' => 'user_email_address' ),
+	array( 'db' => 'user_password', 'dt' => 4, 'field' => 'user_password' ),
+	array( 'db' => 'user_contact_no', 'dt' => 5, 'field' => 'user_contact_no' ),
+	array( 'db' => 'user_address', 'dt' => 6, 'field' => 'user_address' ),
+	array( 'db' => 'user_verification_status', 'dt' => 7, 'field' => 'user_verification_status' ),
+    array( 'db' => 'user_status',
+			'dt' => 8,
+			'field' => 'user_status',
+			'formatter' => function( $d, $row ) {
+				if($row["user_status"] == "Enable"){
+					return '<span class="badge bg-success">'.$row["user_status"].'</span>';
+				}else{
+					return '<span class="badge bg-secondary">'.$row["user_status"].'</span>';
+				}
+			}
+		),
+    array( 
+        'db'        => 'user_created_on', 
+        'dt'        => 9,
+		'field' => 'user_created_on',		
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['user_created_on'])); 
+        } 
+    ),
+	array( 
+        'db'        => 'user_updated_on', 
+        'dt'        => 10,
+		'field' => 'user_updated_on',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['user_updated_on'])); 
+        } 
+    ),
+    array( 
+        'db'        => 'user_id',
+        'dt'        => 11,
+		'field' => 'user_id',
+        'formatter' => function( $d, $row ) { 
+            return '<a href="user.php?action=edit&code='.convert_data($row["user_id"]).'" class="btn btn-sm btn-primary">Edit</a><button name="delete_button" class="btn btn-danger btn-sm" onclick="delete_data('.$row["user_id"].')">Delete</button>'; 
+        } 
+    ) 
+); 
+ 
+// Include SQL query processing class 
+require 'ssp.class.php'; 
+ 
+// Output data as json format 
+echo json_encode( 
+    SSP::simple( $_GET, $dbDetails, $table, $primaryKey, $columns ));

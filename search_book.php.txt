@@ -1,0 +1,79 @@
+<?php
+
+//search_book.php
+
+include 'database_connection.php';
+
+include 'function.php';
+
+if(!is_user_login())
+{
+	header('location:user_login.php');
+}
+
+$query = "
+	SELECT * FROM lms_book 
+    WHERE book_status = 'Enable' 
+    ORDER BY book_id DESC
+";
+
+$statement = $connect->prepare($query);
+
+$statement->execute();
+
+
+include 'header.php';
+
+?>
+
+<div class="container-fluid py-4" style="min-height: 700px;">
+
+	<h1>Search Book</h1>
+
+	<div class="card mb-4">
+		<div class="card-header">
+			<div class="row">
+				<div class="col col-md-6">
+					<i class="fas fa-table me-1"></i> Book List
+				</div>
+				<div class="col col-md-6" align="right">
+
+				</div>
+			</div>
+		</div>
+		<div class="card-body">
+			<table id="hhh" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Book Name</th>
+								<th>ISBN No.</th>
+								<th>Category</th>
+								<th>Author</th>
+								<th>Location Rack</th>
+								<th>No. of Available Copy</th>
+								<th>Status</th>
+								<th>Added On</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th>Book Name</th>
+								<th>ISBN No.</th>
+								<th>Category</th>
+								<th>Author</th>
+								<th>Location Rack</th>
+								<th>No. of Available Copy</th>
+								<th>Status</th>
+								<th>Added On</th>
+                            </tr>
+                        </tfoot>
+                  </table>
+		</div>
+	</div>
+</div>
+
+<?php 
+
+include 'footer.php';
+
+?>

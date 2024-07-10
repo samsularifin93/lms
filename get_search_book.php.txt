@@ -1,0 +1,58 @@
+<?php 
+
+include 'database_connection.php';
+
+include 'function.php';
+
+if(!is_user_login())
+{
+	header('location:user_login.php');
+}
+
+// Database connection info 
+$dbDetails = $dbConfigArray;
+ 
+// mysql db table to use 
+$table = 'lms_book';
+ 
+// Table's primary key 
+$primaryKey = 'book_id'; 
+ 
+// Array of database columns which should be read and sent back to DataTables. 
+// The `db` parameter represents the column name in the database.  
+// The `dt` parameter represents the DataTables column identifier. 
+$columns = array( 
+    array( 'db' => 'book_name', 'dt' => 0, 'field' => 'book_name' ),
+	array( 'db' => 'book_isbn_number', 'dt' => 1, 'field' => 'book_isbn_number' ),
+	array( 'db' => 'book_category', 'dt' => 2, 'field' => 'book_category' ),
+	array( 'db' => 'book_author', 'dt' => 3, 'field' => 'book_author' ),
+	array( 'db' => 'book_location_rack', 'dt' => 4, 'field' => 'book_location_rack' ),
+	array( 'db' => 'book_no_of_copy', 'dt' => 5, 'field' => 'book_no_of_copy' ),
+    array( 'db' => 'book_no_of_copy',
+			'dt' => 6,
+			'field' => 'book_no_of_copy',
+			'formatter' => function( $d, $row ) {
+				if($row["book_no_of_copy"] > 0){
+					return '<div class="badge bg-success">Available</div>';
+				}else{
+					return '<div class="badge bg-danger">Not Available</div>';
+				}
+			}
+		), 
+    array( 
+        'db'        => 'book_added_on', 
+        'dt'        => 7,
+		'field' => 'book_added_on',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['book_added_on'])); 
+        } 
+    )
+); 
+ 
+// Include SQL query processing class 
+require 'ssp.class.php'; 
+ 
+// Output data as json format 
+echo json_encode( 
+    SSP::complex( $_GET, $dbDetails, $table, $primaryKey, $columns, "book_status ='Enable'" )
+	);

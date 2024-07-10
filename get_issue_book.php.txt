@@ -1,0 +1,80 @@
+<?php 
+
+include 'database_connection.php';
+
+include 'function.php';
+
+if(!is_admin_login())
+{
+	header('location:../admin_login.php');
+}
+
+// Database connection info 
+$dbDetails = $dbConfigArray;
+ 
+// mysql db table to use 
+$table = 'lms_issue_book';
+ 
+// Table's primary key 
+$primaryKey = 'issue_book_id'; 
+ 
+// Array of database columns which should be read and sent back to DataTables. 
+// The `db` parameter represents the column name in the database.  
+// The `dt` parameter represents the DataTables column identifier. 
+$columns = array(
+    array( 'db' => 'book_id', 'dt' => 0, 'field' => 'book_id' ),
+	array( 'db' => 'user_id', 'dt' => 1, 'field' => 'user_id' ),
+	array( 
+        'db'        => 'issue_date_time', 
+        'dt'        => 2,
+		'field' => 'issue_date_time',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['issue_date_time'])); 
+        } 
+    ),
+	array( 
+        'db'        => 'return_date_time', 
+        'dt'        => 3,
+		'field' => 'return_date_time',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['return_date_time'])); 
+        } 
+    ),
+	array( 'db' => 'book_fines', 'dt' => 4, 'field' => 'book_fines' ),
+    array( 'db' => 'book_issue_status',
+			'dt' => 5,
+			'field' => 'book_issue_status',
+			'formatter' => function( $d, $row ) {
+				
+				if($row["book_issue_status"] == 'Issue')
+					{
+        				return '<span class="badge bg-warning">Issue</span>';
+        			}
+
+        		if($row["book_issue_status"] == 'Not Return')
+        			{
+        				return '<span class="badge bg-danger">Not Return</span>';
+        			}
+
+        		if($row["book_issue_status"] == 'Return')
+        			{
+        				return '<span class="badge bg-primary">Return</span>';
+        			}
+			}
+		),
+    array( 
+        'db'        => 'issue_book_id',
+        'dt'        => 6,
+		'field' => 'issue_book_id',
+        'formatter' => function( $d, $row ) { 
+            return '<a href="issue_book.php?action=view&code='.convert_data($row["issue_book_id"]).'" class="btn btn-sm btn-info">View</a>'; 
+        } 
+    ) 
+); 
+ 
+// Include SQL query processing class 
+require 'ssp.class.php'; 
+ 
+// Output data as json format 
+echo json_encode( 
+    SSP::simple( $_GET, $dbDetails, $table, $primaryKey, $columns ));

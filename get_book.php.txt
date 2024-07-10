@@ -1,0 +1,73 @@
+<?php 
+
+include 'database_connection.php';
+
+include 'function.php';
+
+if(!is_admin_login())
+{
+	header('location:../admin_login.php');
+}
+
+// Database connection info 
+$dbDetails = $dbConfigArray;
+ 
+// mysql db table to use 
+$table = 'lms_book';
+ 
+// Table's primary key 
+$primaryKey = 'book_id'; 
+ 
+// Array of database columns which should be read and sent back to DataTables. 
+// The `db` parameter represents the column name in the database.  
+// The `dt` parameter represents the DataTables column identifier. 
+$columns = array( 
+    array( 'db' => 'book_name', 'dt' => 0, 'field' => 'book_name' ),
+	array( 'db' => 'book_isbn_number', 'dt' => 1, 'field' => 'book_isbn_number' ),
+	array( 'db' => 'book_category', 'dt' => 2, 'field' => 'book_category' ),
+	array( 'db' => 'book_author', 'dt' => 3, 'field' => 'book_author' ),
+	array( 'db' => 'book_location_rack', 'dt' => 4, 'field' => 'book_location_rack' ),
+	array( 'db' => 'book_no_of_copy', 'dt' => 5, 'field' => 'book_no_of_copy' ),
+    array( 'db' => 'book_status',
+			'dt' => 6,
+			'field' => 'book_status',
+			'formatter' => function( $d, $row ) {
+				if($row["book_status"] == "Enable"){
+					return '<span class="badge bg-success">'.$row["book_status"].'</span>';
+				}else{
+					return '<span class="badge bg-secondary">'.$row["book_status"].'</span>';
+				}
+			}
+		), 
+    array( 
+        'db'        => 'book_added_on', 
+        'dt'        => 7,
+		'field' => 'book_added_on',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['book_added_on'])); 
+        } 
+    ),
+	array( 
+        'db'        => 'book_updated_on', 
+        'dt'        => 8,
+		'field' => 'book_updated_on',
+        'formatter' => function( $d, $row ) { 
+            return date( 'jS M Y', strtotime($row['book_updated_on'])); 
+        } 
+    ),
+    array( 
+        'db'        => 'book_id',
+        'dt'        => 9,
+		'field' => 'book_id',		
+        'formatter' => function( $d, $row ) { 
+            return '<a href="book.php?action=edit&code='.convert_data($row["book_id"]).'" class="btn btn-sm btn-primary">Edit</a><button name="delete_button" class="btn btn-danger btn-sm" onclick="delete_data('.$row["book_id"].')">Delete</button>'; 
+        } 
+    ) 
+); 
+ 
+// Include SQL query processing class 
+require 'ssp.class.php'; 
+ 
+// Output data as json format 
+echo json_encode( 
+    SSP::simple( $_GET, $dbDetails, $table, $primaryKey, $columns ));
